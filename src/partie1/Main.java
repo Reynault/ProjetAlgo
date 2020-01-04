@@ -91,7 +91,7 @@ public class Main {
             // Si c'est la première ligne, récupération de la taille
             if(premiereLigne) {
                 taille = ligne.length();
-                res = new boolean[taille][taille][3][3];
+                res = new boolean[taille][taille][Implementation.NB_COULEUR][Implementation.NB_COULEUR];
                 premiereLigne = false;
             }
 
@@ -100,8 +100,8 @@ public class Main {
                 throw new Exception("Fichier non conforme, nombre de colonnes différent du nombre de lignes ");
             }
 
-            // Pour tous les caractères d'une ligne
-            for(int i = 0; i < taille; i++){
+            // Pour tous les caractères d'une ligne (en partant du compteur puisqu'on ne prend que la moitié de la matrice)
+            for(int i = compteur; i < taille; i++){
                 caractereCourant = ligne.charAt(i);
 
                 // S'il y a un 1, alors il y a une arête entre les deux sommets
@@ -112,9 +112,9 @@ public class Main {
                 //
                 // Pour plus d'explications, voir le rapport question 5.
                 if(caractereCourant == '1'){
-                    res[compteur][i][0][0] = true;
-                    res[compteur][i][1][1] = true;
-                    res[compteur][i][2][2] = true;
+                    res[compteur][i][Implementation.ROUGE][Implementation.ROUGE] = true;
+                    res[compteur][i][Implementation.VERT][Implementation.VERT] = true;
+                    res[compteur][i][Implementation.BLEU][Implementation.BLEU] = true;
                 }
             }
 

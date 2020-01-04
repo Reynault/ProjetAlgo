@@ -1,15 +1,20 @@
 package partie1;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Random;
 
 /**
  * Implementation est une classe qui contient l'implémentation de l'algorithme proposé pour résoudre
  * le problème (3-2)-SSS
  */
 public class Implementation {
+    public static int NB_COULEUR = 3;
+
+    public static int ROUGE = 0;
+    public static int VERT = 1;
+    public static int BLEU = 2;
+
     private boolean[][][][] binaires;
     private boolean[][] unaires;
 
@@ -17,6 +22,7 @@ public class Implementation {
     private int nbBinaire;
     private List<Integer> variables;
     private int taille;
+    private int nbCouleur;
 
     /**
      * Constructeur prenant en paramètre les deux tableaux contenant les contraintes
@@ -33,12 +39,13 @@ public class Implementation {
         this.variables = new ArrayList<>();
         this.nbUnaire = calculNbUnaire(unaires, variables);
         this.nbBinaire = calculNbBinaire(binaires, variables);
+        this.nbCouleur = unaires[0].length;
     }
 
     /**
      * Méthode de récupération du nombre de contraintes binaires
      *
-     * @param binaires tableau contenant les contraintes binaires
+     * @param binaires  tableau contenant les contraintes binaires
      * @param variables Dictionnaire contenant la liste des variables, ainsi que le nombre d'occurence
      * @return nombre de contraintes binaires
      */
@@ -54,11 +61,11 @@ public class Implementation {
                             nbBinaire++;
 
                             // Mise à jour de la liste des variables
-                            if(!variables.contains(i)){
+                            if (!variables.contains(i)) {
                                 variables.add(i);
                             }
 
-                            if(!variables.contains(j)){
+                            if (!variables.contains(j)) {
                                 variables.add(j);
                             }
                         }
@@ -73,7 +80,7 @@ public class Implementation {
     /**
      * Méthode de récupération du nombre de contraintes unaires
      *
-     * @param unaires tableau contenant les contraintes unaires
+     * @param unaires   tableau contenant les contraintes unaires
      * @param variables Dictionnaire contenant la liste des variables, ainsi que le nombre d'occurence
      * @return nombre de contraintes unaires
      */
@@ -87,7 +94,7 @@ public class Implementation {
                     nbUnaire++;
 
                     // Mise à jour de la liste des variables
-                    if(!variables.contains(i)){
+                    if (!variables.contains(i)) {
                         variables.add(i);
                     }
                 }
@@ -105,37 +112,216 @@ public class Implementation {
      * @param unaires   le tableau de booléen indiquant les contraintes unaires
      * @param nbBinaire nombre de contraintes binaires
      * @param nbUnaire  nombre de contraintes unaires
+     * @param nbCouleur  nombre de couleurs
      * @return un booléen indiquant si l'ensemble est satisfiable ou non
      */
-    private boolean tentative(boolean[][][][] binaires, boolean[][] unaires, int nbBinaire, int nbUnaire, List<Integer> variables) {
+    private boolean tentative(boolean[][][][] binaires, boolean[][] unaires, int nbBinaire, int nbUnaire,
+                              List<Integer> variables, int nbCouleur) {
         boolean satisfait = true;
 
         // L'algorithme boucle tant qu'il n'y a pas de contradiction, et encore des contraintes
-        while (satisfait && variables.size() != 0){
+        while (satisfait && variables.size() != 0) {
 
             // Vérification de la première contrainte (arrêt en cas de succès)
-            if(verifPremiereRegle(unaires)){
+            if (verifPremiereRegle(unaires)) {
                 satisfait = false;
             }
 
-            // Si pas de contradiction
-            if(satisfait){
-                // On commence par récupérer une variable qui possède des contraintes unaires (null s'il n'y en a pas)
+            // S'il n'y a pas de contradiction
+            if (satisfait) {
+                boolean[] couleurs;
+                int nbContraintes;
+                int variableCourante, indice;
+                boolean existeUnaire = false;
 
+                // On commence par récupérer une variable qui possède des contraintes unaires
+
+                variableCourante = 0;
+                couleurs = new boolean[nbCouleur];
+                nbContraintes = 0;
+                indice = 0;
+                // Parcours des variables, tant qu'on ne trouve pas de contraintes unaires
+                while (!existeUnaire && indice < variables.size()) {
+                    variableCourante = variables.get(indice);
+
+                    // Pour toutes les contraintes possibles pour une variable, on vérifie l'existence
+                    for (int j = 0; j < unaires[variableCourante].length; indice++) {
+                        // Si l'une d'entre elles existe, incrémentation du nombre et indication de l'existence
+                        if (unaires[variableCourante][j]) {
+                            couleurs[j] = true;
+                            nbContraintes ++;
+                            existeUnaire = true;
+                        }
+                    }
+                }
+
+                if (existeUnaire) {
+
+                    // Suppression des contraintes unaires
+                    for (int i = 0; i < unaires[variableCourante].length; i++) {
+                        unaires[variableCourante][i] = false;
+                        nbUnaire --;
+                    }
+
+                    if (nbContraintes == 2) {
+                        // S'il y en a deux, application de la règle deux du sujet
+
+                        // Suppression des contraintes binaires
+                        for(int i = 0; i < binaires.length; i++){
+                            for(int j = 0; j < nbCouleur; j++){
+                                for(int k = 0; k < nbCouleur; k++) {
+                                    if(!couleurs[j] && binaires[variableCourante][i][j][k]) {
+                                        unaires[i][k] = true;
+                                        nbUnaire ++;
+                                    }
+
+                                    if(!couleurs[j] && binaires[i][variableCourante][k][j]) {
+                                        unaires[i][k] = true;
+                                        nbUnaire ++;
+                                    }
+
+                                    if (binaires[variableCourante][i][j][k]) {
+                                        binaires[variableCourante][i][j][k] = false;
+                                        nbBinaire--;
+                                    }
+
+                                    if (binaires[i][variableCourante][k][j]) {
+                                        binaires[i][variableCourante][k][j] = false;
+                                        nbBinaire--;
+                                    }
+
+                                    if(!variableExiste(i, binaires, unaires, nbCouleur)){
+                                        variables.remove(i);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Suppression de la variable
+                        variables.remove(variableCourante);
+
+                    } else {
+                        // Sinon, application de la règle trois
+
+                        // Récupération des couleurs
+                        int c = 0;
+                        boolean trouve = false;
+                        while (c < couleurs.length && !trouve){
+                            if(couleurs[c]){
+                                trouve = true;
+                            }else {
+                                c++;
+                            }
+                        }
+
+                        // Parcours des contraintes pour enlever les contraintes binaires
+                        for(int i = 0 ; i < binaires.length; i++){
+                            for(int j = 0; j < nbCouleur; j++){
+                                if(binaires[variableCourante][i][c][j]){
+                                    binaires[variableCourante][i][j][c] = false;
+                                    nbBinaire--;
+                                }
+                                if(binaires[i][variableCourante][j][c]){
+                                    binaires[i][variableCourante][c][j] = false;
+                                    nbBinaire--;
+                                }
+                                if(!variableExiste(i, binaires, unaires, nbCouleur)){
+                                    variables.remove(i);
+                                }
+                            }
+                        }
+
+                        // Parcours des contraintes pour les couples de contraintes de la forme [(x, V ),(y, b)] et [(x, B),(z, c)]
+                        int c1, c2;
+                        trouve = true;
+
+                        while (trouve){
+                            trouve = false;
+
+                            for(int i = 0; i < binaires.length; i ++){
+                                for(int j = 0; j < binaires.length; j++){
+
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // S'il n'y a pas de contraintes unaires, application de la règle 4 sur la première contrainte binaire
+                    boolean trouve = false;
+
+                    int v1, v2, c1, c2;
+
+                    // Récupération d'une première contrainte
+                    for(int i = 0; i < binaires.length && !trouve ; i++){
+                        for(int j = 0; j < binaires[i].length && !trouve ; j++){
+                            for(int k = 0; k < binaires[i][j].length && !trouve ; k++){
+                                for(int l = 0; l < binaires[i][j][k].length && !trouve ; l++){
+                                    if(binaires[i][j][k][l]){
+                                        v1 = i;
+                                        v2 = j;
+                                        c1 = k;
+                                        c2 = l;
+                                        trouve = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Application de la modification
+                    int choix = new Random().nextInt(4);
+                    switch (choix){
+                        case 0:
+
+                            break;
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                }
             }
         }
 
+        return satisfait;
+    }
 
+    /**
+     * Méthode qui permet de vérifier si une variable existe
+     * @param variable numéro de la variable à tester
+     * @param binaires tableau contenant l'ensemble des contraintes binaires
+     * @param unaires tableau contenant l'ensemble des contraintes unaires
+     * @param nbCouleur nombre de couleurs
+     * @return vrai si la variable a encore des contraintes, faux sinon
+     */
+    private boolean variableExiste(int variable, boolean[][][][] binaires, boolean[][] unaires, int nbCouleur){
+        boolean res = false;
 
-            // Si il existe une variable avec des contraintes unaires, on compte
+        // Parcours dans le tableau des contraintes unaires
+        for(int i = 0; i < nbCouleur && !res; i++){
+            if(unaires[variable][i]){
+                res = true;
+            }
+        }
 
-            // S'il y en a deux application de la règle 2
+        // Parcours dans le tableau des contraintes binaires
+        for(int i = 0; i < binaires.length && !res; i++){
+            for(int j = 0; j < nbCouleur; j++){
+                for(int k = 0; k < nbCouleur; k++){
+                    if(binaires[variable][i][j][k]){
+                        res = true;
+                    }
 
-            // Sinon application de la règle trois
+                    if(binaires[i][variable][k][j]){
+                        res = true;
+                    }
+                }
+            }
+        }
 
-            // S'il n'y a pas de contraintes unaires, application de la règle 4 sur la première contrainte binaire
-
-            return false;
+        return res;
     }
 
     /**
@@ -145,11 +331,20 @@ public class Implementation {
      * @return un booléen qui est vrai si il y a une contradiction
      */
     private boolean verifPremiereRegle(boolean[][] unaires) {
+        int j;
         boolean contradiction = false;
 
         // Parcours de l'ensemble des sommets pour vérifier si les trois contraintes existent
         for (int i = 0; i < unaires.length && !contradiction; i++) {
-            if (unaires[i][0] && unaires[i][1] && unaires[i][2]) {
+            j = 0;
+            // Parcours des contraintes possibles, si l'une d'entre elles est fausse, alors on stop
+            while (j < unaires[i].length && unaires[i][j]) {
+                j++;
+            }
+
+            // Si j a atteint la valeur de la taille du tableau, alors toutes les contraintes unaires pour
+            // une seule variable existent, donc il y a une contradiction
+            if (j == unaires[i].length) {
                 contradiction = true;
             }
         }
@@ -172,13 +367,13 @@ public class Implementation {
      */
     public boolean resoudre() {
         // Initialisation du nombre de tentatives
-        long nbTentative = 0, nbMax = Math.round(10 * Math.pow(2, ((double) taille) / 2)) + 1;
+        long nbTentative = 0, nbMax = Math.round(10 * Math.pow(2, ((double) taille) / 10)) + 1;
         boolean satisfait = false;
 
         // Boucle dans laquelle on réalise les tentative, et qui s'arrête, si on atteint le max, ou si
         // on trouve que c'est satisfiable
         while (!satisfait && nbTentative < nbMax) {
-            satisfait = tentative(binaires, unaires, nbBinaire, nbUnaire, variables);
+            satisfait = tentative(binaires, unaires, nbBinaire, nbUnaire, variables, nbCouleur);
             nbTentative++;
         }
 
