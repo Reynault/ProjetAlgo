@@ -272,7 +272,7 @@ public class Implementation {
                     int choix = new Random().nextInt(4);
                     switch (choix){
                         case 0:
-
+                            // TODO : Utilisation du modulo (couleur + 1) % 3
                             break;
                         case 1:
                             break;
