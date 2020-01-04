@@ -1,9 +1,7 @@
 package partie1;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Classe principale dans laquelle se trouve l'algorithme probabiliste
@@ -25,18 +23,50 @@ public class Main {
     public static void main(String[] arguments) {
         // Si aucuns arguments
         if (arguments.length != 1) {
-            // Rappel sur l'utilisation du programme
-            System.out.println("Usage : java Main <<Nom du graphe>>");
-            System.out.println("Exemple : java Main graph1");
+            // Utilisation du programme sur tous les graphes de test
+            try {
+                for(int i = 0; i < 14; i++) {
+                    File fichier = new File("doc/partie1/graph"+(i+1)+".txt");
+                    BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
+
+                    // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
+                    try {
+                        System.out.println("Transformation du graphe n°"+(i+1));
+                        graphVersSSS(lecteur);
+                    }catch (Exception e){
+                        System.out.println("Erreur lors de la lecture du fichier: "+fichier.getPath());
+                        System.out.println("Message d'erreur: "+e.getMessage());
+                    }
+
+                    lecteur.close();
+                }
+            }catch (Exception e){
+                System.out.println("Erreur lors de la récupération du fichier: "+e.getMessage());
+            }
         }else{
             try {
                 // Sinon, récupération du fichier
-                File file = new File("doc/partie1/"+arguments[0]+".txt");
+                File fichier = new File("doc/partie1/"+arguments[0]+".txt");
                 // Et lecture
-                FileInputStream fis = new FileInputStream(file);
+                BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
 
+                // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
+                try {
+                    System.out.println("Transformation du graphe demandé");
+                    boolean[][][][] binaire = graphVersSSS(lecteur);
+                    System.out.println("Mise en place de l'implementation");
 
-            }catch (IOException e){
+                    boolean[][] unaire = new boolean[binaire.length][3];
+                    Implementation impl = new Implementation(binaire, unaire);
+                    boolean res = impl.resoudre();
+
+                    System.out.println("Résultat de l'algorithme: "+res);
+                }catch (Exception e){
+                    System.out.println("Erreur lors de la lecture du fichier: "+e.getMessage());
+                }
+
+                lecteur.close();
+            }catch (Exception e){
                 System.out.println("Erreur lors de la récupération du fichier: "+e.getMessage());
             }
         }
@@ -44,17 +74,61 @@ public class Main {
 
     /**
      * Méthode permettant de passer d'un fichier contenant un graphe représenté
-     * par matrice d'adjacence, vers un tableau de contraintes binaires
-     * @param fichier stream vers le fichier ouvert
+     * par matrice d'adjacence, vers un tableau de contraintes binaires (Comme présenté dans le rapport)
+     * @param lecteur stream vers le fichier ouvert
      * @return tableau contenant les contraintes binaires
      */
-    public static boolean[][][][] graphVersSSS(FileInputStream fichier) {
-        int largeur = fichier.
+    public static boolean[][][][] graphVersSSS(BufferedReader lecteur) throws Exception{
+        int compteur = 0, taille = 0;
+        boolean[][][][] res = null;
+        boolean premiereLigne = true;
+        String ligne;
+        char caractereCourant;
 
-        int[][][][] res;
+        // Lecture des lignes du fichier
+        while((ligne = lecteur.readLine()) != null){
 
+            // Si c'est la première ligne, récupération de la taille
+            if(premiereLigne) {
+                taille = ligne.length();
+                res = new boolean[taille][taille][3][3];
+                premiereLigne = false;
+            }
 
+            // Vérification si le compteur (numéro de la ligne courante) est supérieur à la taille d'une ligne
+            if(compteur >= taille){
+                throw new Exception("Fichier non conforme, nombre de colonnes différent du nombre de lignes ");
+            }
 
-        return null;
+            // Pour tous les caractères d'une ligne
+            for(int i = 0; i < taille; i++){
+                caractereCourant = ligne.charAt(i);
+
+                // S'il y a un 1, alors il y a une arête entre les deux sommets
+                // Il faut donc ajouter dans le tableau les trois contraintes suivantes
+                // [(S1, R), (S2, R)], [(S1, B), (S2, B)], [(S1, V), (S2, V)]
+                // avec S1 correspondant au sommet de la ligne
+                // et S2 correspondant au sommet de la colonne
+                //
+                // Pour plus d'explications, voir le rapport question 5.
+                if(caractereCourant == '1'){
+                    res[compteur][i][0][0] = true;
+                    res[compteur][i][1][1] = true;
+                    res[compteur][i][2][2] = true;
+                }
+            }
+
+            compteur ++;
+        }
+
+        // Vérifications de la taille, et si le fichier n'est pas vide
+        if(compteur != taille){
+            throw new Exception("Fichier non conforme, nombre de colonnes différent du nombre de lignes ");
+        }
+        if(res == null){
+            throw new Exception("Fichier vide.");
+        }
+
+        return res;
     }
 }
