@@ -15,71 +15,36 @@ public class Main {
      * Il demande un chemin vers un fichier (qui se trouve dans le dossier contenant les graphes (doc/partie1/), donc le chemin
      * est partiellement indiqué, il suffit juste de donner le nom du graphe à tester
      *
-     * S'il n'y a pas de paramètres, le main exécute l'algorithme sur tous les graphes
-     * à tester.
-     *
      * @param arguments Le nom du fichier à indiquer
      */
     public static void main(String[] arguments) {
         // Si aucuns arguments
         if (arguments.length != 1) {
-            // Utilisation du programme sur tous les graphes de test
-            try {
-                for(int i = 0; i < 14; i++) {
-                    File fichier = new File("doc/partie1/graph"+(i+1)+".txt");
-                    BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
-
-                    // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
-                    try {
-                        System.out.println("Transformation du graphe n°"+(i+1));
-                        boolean[][][][] binaire = graphVersSSS(lecteur);
-                        System.out.println("Mise en place de l'implementation");
-
-                        boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
-                        Implementation impl = new Implementation(binaire, unaire);
-                        boolean res = impl.resoudre();
-
-                        if(res){
-                            System.out.println("Graphe satisfiable");
-                        }else{
-                            System.out.println("Graphe insatisfiable");
-                        }
-                    }catch (Exception e){
-                        System.out.println("Erreur lors de la lecture du fichier: "+fichier.getPath());
-                        System.out.println("Message d'erreur: "+e.getMessage());
-                    }
-
-                    lecteur.close();
-                }
-            }catch (Exception e){
-                System.out.println("Erreur lors de la récupération du fichier: "+e.getMessage());
-            }
+            System.out.println("Usage: java <Nom du programme> <nom du graphe qui se trouve dans le dossier doc/partie1/>");
+            System.out.println("exemple: java main graph1");
         }else{
             try {
-                // Sinon, récupération du fichier
+                // Récupération du fichier
                 File fichier = new File("doc/partie1/"+arguments[0]+".txt");
                 // Et lecture
                 BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
 
                 // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
                 try {
-                    System.out.println("Transformation du graphe demandé");
                     boolean[][][][] binaire = graphVersSSS(lecteur);
-                    System.out.println("Mise en place de l'implementation");
 
                     boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
-                    System.out.println("Creation");
                     Implementation impl = new Implementation(binaire, unaire);
-                    System.out.println("Début de la résolution");
                     boolean res = impl.resoudre();
 
                     if(res){
-                        System.out.println("Graphe satisfiable");
+                        System.out.println("GRAPHE COLORIABLE");
                     }else{
-                        System.out.println("Graphe insatisfiable");
+                        System.out.println("GRAPHE NON COLORIABLE");
                     }
                 }catch (Exception e){
                     System.out.println("Erreur lors de la lecture du fichier: "+e.getMessage());
+                    e.printStackTrace();
                 }
 
                 lecteur.close();
