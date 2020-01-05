@@ -137,8 +137,10 @@ public class Implementation {
         System.out.println("Suppression des contraintes unaires");
         // Suppression des contraintes unaires
         for (int i = 0; i < NB_COULEUR; i++) {
+            if(tmpUnaires[variableCourante][i]){
+                couleurs[i] = true;
+            }
             tmpUnaires[variableCourante][i] = false;
-            couleurs[i] = true;
         }
         affichageContraintes();
 
