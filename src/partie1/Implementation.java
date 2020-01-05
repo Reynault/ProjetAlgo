@@ -119,14 +119,16 @@ public class Implementation {
 
         // L'algorithme boucle tant qu'il n'y a pas de contradiction, et encore des contraintes
         while (satisfait && variables.size() != 0) {
-
+            System.out.println("Nouvelle étape de l'algorithme");
             // Vérification de la première contrainte (arrêt en cas de succès)
             if (verifPremiereRegle(unaires)) {
+                System.out.println("Contradiction detectée");
                 satisfait = false;
             }
 
             // S'il n'y a pas de contradiction
             if (satisfait) {
+                System.out.println("Pas de contradiction");
                 boolean[] couleurs;
                 int nbContraintes;
                 int variableCourante, indice;
@@ -138,12 +140,13 @@ public class Implementation {
                 couleurs = new boolean[NB_COULEUR];
                 nbContraintes = 0;
                 indice = 0;
+                System.out.println("Récupération des contraintes unaires");
                 // Parcours des variables, tant qu'on ne trouve pas de contraintes unaires
                 while (!existeUnaire && indice < variables.size()) {
                     variableCourante = variables.get(indice);
 
                     // Pour toutes les contraintes possibles pour une variable, on vérifie l'existence
-                    for (int j = 0; j < unaires[variableCourante].length; indice++) {
+                    for (int j = 0; j < unaires[variableCourante].length; j++) {
                         // Si l'une d'entre elles existe, incrémentation du nombre et indication de l'existence
                         if (unaires[variableCourante][j]) {
                             couleurs[j] = true;
@@ -151,10 +154,13 @@ public class Implementation {
                             existeUnaire = true;
                         }
                     }
+
+                    indice++;
                 }
 
                 if (existeUnaire) {
 
+                    System.out.println("Contraintes unaires trouvées et suppression");
                     // Suppression des contraintes unaires
                     for (int i = 0; i < unaires[variableCourante].length; i++) {
                         unaires[variableCourante][i] = false;
@@ -162,8 +168,10 @@ public class Implementation {
                     }
 
                     if (nbContraintes == 2) {
+                        System.out.println("Nombre de contraintes = 2");
                         // S'il y en a deux, application de la règle deux du sujet
 
+                        System.out.println("Suppression des contraintes binaires");
                         // Suppression des contraintes binaires
                         for(int i = 0; i < binaires.length; i++){
                             for(int j = 0; j < NB_COULEUR; j++){
@@ -199,8 +207,10 @@ public class Implementation {
                         variables.remove(variableCourante);
 
                     } else {
+                        System.out.println("Nombre de contrainte = 1");
                         // Sinon, application de la règle trois
 
+                        System.out.println("Récupération de la couleur");
                         // Récupération des couleurs
                         int c = 0;
                         boolean trouve = false;
@@ -212,6 +222,7 @@ public class Implementation {
                             }
                         }
 
+                        System.out.println("Suppression des contraintes binaires");
                         // Parcours des contraintes pour enlever les contraintes binaires
                         for(int i = 0 ; i < binaires.length; i++){
                             for(int j = 0; j < NB_COULEUR; j++){
@@ -233,6 +244,7 @@ public class Implementation {
                         int c1 = (c+1) % NB_COULEUR;
                         int c2 = (c+2) % NB_COULEUR;
 
+                        System.out.println("Gestion du cas [(x, V ),(y, b)] et [(x, B),(y, b)");
                         // Gestion du cas où on a [(x, V ),(y, b)] et [(x, B),(y, b)]
                         for(int i = 0; i < binaires.length; i++){
                             for(int j = 0; j < NB_COULEUR; j++){
@@ -256,6 +268,7 @@ public class Implementation {
                         boolean trouve2 = true;
                         int x = 0, y = 0, couleurX = 0, couleurY = 0;
 
+                        System.out.println("Gestion du cas global");
                         // Gestion des couples [(x, V ),(y, b)] et [(x, B),(z, c)]
                         while (trouve1 && trouve2){
                             trouve1 = false;
@@ -298,11 +311,13 @@ public class Implementation {
                         }
                     }
                 } else {
+                    System.out.println("Il n'y a pas de contraintes unaires");
                     // S'il n'y a pas de contraintes unaires, application de la règle 4 sur la première contrainte binaire
                     boolean trouve = false;
 
                     int v1 = 0, v2 = 0, c1 = 0, c2 = 0;
 
+                    System.out.println("Récupération d'une première contrainte binaire");
                     // Récupération d'une première contrainte
                     for(int i = 0; i < binaires.length && !trouve ; i++){
                         for(int j = 0; j < binaires[i].length && !trouve ; j++){
@@ -320,6 +335,7 @@ public class Implementation {
                         }
                     }
 
+                    System.out.println("Application du choix aléatoire");
                     // Application de la modification
                     int choix = new Random().nextInt(4);
                     switch (choix){
@@ -427,12 +443,14 @@ public class Implementation {
      */
     public boolean resoudre() {
         // Initialisation du nombre de tentatives
-        long nbTentative = 0, nbMax = Math.round(10 * Math.pow(2, ((double) taille) / 10)) + 1;
+        long nbTentative = 0;
+        long nbMax = 4;// Math.round(10 * Math.pow(2, ((double) taille) / 10)) + 1;
         boolean satisfait = false;
 
         // Boucle dans laquelle on réalise les tentative, et qui s'arrête, si on atteint le max, ou si
         // on trouve que c'est satisfiable
         while (!satisfait && nbTentative < nbMax) {
+            System.out.println("Nouvelle tentative");
             satisfait = tentative(binaires, unaires, nbBinaire, nbUnaire, variables);
             nbTentative++;
         }

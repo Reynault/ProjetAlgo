@@ -32,7 +32,18 @@ public class Main {
                     // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
                     try {
                         System.out.println("Transformation du graphe n°"+(i+1));
-                        graphVersSSS(lecteur);
+                        boolean[][][][] binaire = graphVersSSS(lecteur);
+                        System.out.println("Mise en place de l'implementation");
+
+                        boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
+                        Implementation impl = new Implementation(binaire, unaire);
+                        boolean res = impl.resoudre();
+
+                        if(res){
+                            System.out.println("Graphe satisfiable");
+                        }else{
+                            System.out.println("Graphe insatisfiable");
+                        }
                     }catch (Exception e){
                         System.out.println("Erreur lors de la lecture du fichier: "+fichier.getPath());
                         System.out.println("Message d'erreur: "+e.getMessage());
@@ -56,11 +67,17 @@ public class Main {
                     boolean[][][][] binaire = graphVersSSS(lecteur);
                     System.out.println("Mise en place de l'implementation");
 
-                    boolean[][] unaire = new boolean[binaire.length][3];
+                    boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
+                    System.out.println("Creation");
                     Implementation impl = new Implementation(binaire, unaire);
+                    System.out.println("Début de la résolution");
                     boolean res = impl.resoudre();
 
-                    System.out.println("Résultat de l'algorithme: "+res);
+                    if(res){
+                        System.out.println("Graphe satisfiable");
+                    }else{
+                        System.out.println("Graphe insatisfiable");
+                    }
                 }catch (Exception e){
                     System.out.println("Erreur lors de la lecture du fichier: "+e.getMessage());
                 }
