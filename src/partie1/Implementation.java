@@ -363,8 +363,7 @@ public class Implementation {
     public boolean resoudre() {
         // Initialisation du nombre de tentatives
         long nbTentative = 0;
-//        long nbMax = Math.round(10 * Math.pow(2, ((double) binaires.length) / 10)) + 1;
-        long nbMax = 1;
+        long nbMax = Math.round(10 * Math.pow(2, ((double) binaires.length) / 15)) + 1;
         boolean satisfait = false;
 
         // Boucle dans laquelle on réalise les tentative, et qui s'arrête, si on atteint le max, ou si
