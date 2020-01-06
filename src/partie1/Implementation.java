@@ -26,6 +26,7 @@ public class Implementation {
     private boolean[][][][] tmpBinaires;
     private boolean[][] tmpUnaires;
     private List<Integer> tmpVariables;
+    private int variableCourante;
 
     /**
      * Constructeur prenant en paramètre les deux tableaux contenant les contraintes
@@ -68,31 +69,29 @@ public class Implementation {
      */
     private boolean tentative() {
         boolean satisfait = true;
-        int nbUnaire, variableCourante;
+        int nbUnaire;
 
         // Tant que le système n'a pas de contradiction et qu'il reste des variables à tester
         while(satisfait && tmpVariables.size() > 0){
-            // Récupération de la première variable
-            variableCourante = tmpVariables.get(0);
+            // Récupération du nombre de contraintes unaires d'une première variable
+            nbUnaire = recupNbUnaire();
+            affichageVariables();
             System.out.println("Variable courante: "+variableCourante);
-            // Récupération du nombre de contraintes unaires
-            nbUnaire = recupNbUnaire(variableCourante);
             System.out.println("Nombre de contraintes: "+nbUnaire);
 
             // Il faut ensuite appliquer les règles en fonction du nombre de contraintes unaires
             switch (nbUnaire){
                 case 0:
                     // Si la variable ne possède pas de contraintes unaires, application du quatrième cas
-                    quatriemeCas(variableCourante);
+                    quatriemeCas();
                     break;
                 case 1:
                     // Lorsqu'il y a une contrainte, application du troisième cas
-                    troisiemeCas(variableCourante);
-                    //System.exit(0);
+                    troisiemeCas();
                     break;
                 case 2:
                     // Lorsqu'il y a deux contraintes unaires, application du deuxième cas
-                    deuxiemeCas(variableCourante);
+                    deuxiemeCas();
                     break;
                 case 3:
                     // S'il y a trois contraintes unaires, cela signifie qu'il y a une contradiction
@@ -109,15 +108,19 @@ public class Implementation {
 
     /**
      * Méthode qui permet de récupérer le nombre de contraintes unaires d'une
-     * variable
-     * @param variableCourante variable dont on veut connaître le nombre de contraintes unaires
+     * variable, s'il n'y a pas de contraintes unaires, alors elle renvoie 0
      * @return le nombre de contraintes unaires
      */
-    private int recupNbUnaire(int variableCourante) {
+    private int recupNbUnaire() {
         int nbUnaire = 0;
-        for(int i = 0; i < NB_COULEUR; i++){
-            if(tmpUnaires[variableCourante][i]){
-                nbUnaire ++;
+        boolean trouve = false;
+        for(int i = 0; i < tmpVariables.size() && !trouve; i++) {
+            for (int j = 0; j < NB_COULEUR; j++) {
+                if (tmpUnaires[tmpVariables.get(i)][j]) {
+                    nbUnaire++;
+                    trouve = true;
+                    variableCourante = tmpVariables.get(i);
+                }
             }
         }
         return nbUnaire;
@@ -126,9 +129,8 @@ public class Implementation {
     /**
      * Méthode qui applique le deuxième cas de l'algorithme, celui dans lequel une variable possède
      * deux contraintes unaires.
-     * @param variableCourante la variable courante
      */
-    private void deuxiemeCas(int variableCourante){
+    private void deuxiemeCas(){
         boolean[] couleurs = new boolean[NB_COULEUR];
 
         System.out.println("Regle deux");
@@ -148,18 +150,15 @@ public class Implementation {
 
         // Suppression des contraintes binaires - Cas dans lequel la couleur fait partie de celles des
         // contraintes unaires
-        boolean trouve = false;
         for (int i = 0; i < taille; i++) {
             for (int j = 0; j < NB_COULEUR; j++) {
                 for (int k = 0; k < NB_COULEUR; k++) {
                     if (couleurs[j] && tmpBinaires[variableCourante][i][j][k]) {
                         tmpBinaires[variableCourante][i][j][k] = false;
-                        trouve = true;
                     }
 
                     if (couleurs[j] && tmpBinaires[i][variableCourante][k][j]) {
                         tmpBinaires[i][variableCourante][k][j] = false;
-                        trouve = true;
                     }
                 }
             }
@@ -198,13 +197,12 @@ public class Implementation {
     /**
      * Méthode qui permet d'appliquer le troisième cas de l'algorithme, cas dans lequel
      * la variable possède une seul contrainte unaire
-     * @param variableCourante variable à tester
      */
-    private void troisiemeCas(int variableCourante){
+    private void troisiemeCas(){
         // Sinon, application de la règle trois
         System.out.println("Règle trois");
 
-        // Récupération de la couleur
+        // Récupération de la couleur de la contrainte unaire
         int c = -1;
         for(int i = 0; i < NB_COULEUR && c == -1 ; i++){
             if(tmpUnaires[variableCourante][i]){
@@ -243,6 +241,8 @@ public class Implementation {
                     // Puisque si on applique la modification directement, on obtient une nouvelle
                     // contrainte du type [(y, b), (y, b)], on peut simplifier avec (y, b)
                     tmpUnaires[i][j] = true;
+                    System.out.println("------------------CAS SPECIAL DETECTE---------------");
+                    System.out.println("(y, b) - ("+i+", "+j+")");
                 }
             }
         }
@@ -299,79 +299,66 @@ public class Implementation {
         }
 
         // S'il n'y a pas de contraintes restantes, suppression de la variable
-        if(!trouve1 && !trouve2){
-            System.out.println("Pas de contraintes restantes, donc suppression de la variable");
-            tmpVariables.remove((Integer) variableCourante);
-            affichageVariables();
-        }
+//        if(!trouve1 && !trouve2){
+//            System.out.println("Pas de contraintes restantes, donc suppression de la variable");
+//            tmpVariables.remove((Integer) variableCourante);
+//            affichageVariables();
+//        }
     }
 
     /**
      * Méthode qui applique le quatrième cas sur l'ensemble des contraintes binaires et unaires
      */
-    private void quatriemeCas(int variableCourante){
+    private void quatriemeCas(){
         boolean trouve = false;
         int v1 = 0, v2 = 0, c1 = 0, c2 = 0;
 
         System.out.println("Application du quatrième cas");
 
-        // Récupération d'une première contrainte qui contient la variable courante
+        // Récupération d'une première contrainte au pif
         for(int i = 0; i < taille && !trouve; i++){
-            for(int j = 0; j < NB_COULEUR && !trouve; j++){
+            for(int j = 0; j < taille && !trouve; j++){
                 for(int k = 0; k < NB_COULEUR && !trouve; k++){
-                    if(tmpBinaires[variableCourante][i][j][k]){
-                        v1 = variableCourante;
-                        v2 = i;
-                        c1 = j;
-                        c2 = k;
-                        trouve = true;
-                    }
-
-                    if(tmpBinaires[i][variableCourante][k][j]){
-                        v2 = variableCourante;
+                    for(int l = 0; l < NB_COULEUR  && !trouve; l++)
+                    if(tmpBinaires[i][j][k][l]){
                         v1 = i;
+                        v2 = j;
                         c1 = k;
-                        c2 = j;
+                        c2 = l;
                         trouve = true;
                     }
                 }
             }
         }
 
-        // Si on ne trouve pas de contrainte binaire avec la variable courante, alors cela signifie qu'elle
-        // ne se trouve pas dans l'ensemble des contraintes
-        if(!trouve){
-            tmpVariables.remove((Integer) variableCourante);
+        System.out.println("Contrainte trouvée: (v1, v2, c1, c2) - (" + v1 + ", " + v2 + ", " + c1 + ", " + c2 + ")");
 
-        }else {
-            System.out.println("Contrainte trouvée: (v1, v2, c1, c2) - (" + v1 + ", " + v2 + ", " + c1 + ", " + c2 + ")");
+        // Application de la modification
+        int choix = new Random().nextInt(4);
 
-            // Application de la modification
-            int choix = new Random().nextInt(4);
+        System.out.println("Choix réalisé: " + choix);
 
-            System.out.println("Choix réalisé: " + choix);
-
-            switch (choix) {
-                case 0:
-                    tmpUnaires[v1][c1] = true;
-                    tmpUnaires[v2][(c2 + 1) % NB_COULEUR] = true;
-                    break;
-                case 1:
-                    tmpUnaires[v1][c1] = true;
-                    tmpUnaires[v2][(c2 + 2) % NB_COULEUR] = true;
-                    break;
-                case 2:
-                    tmpUnaires[v1][(c1 + 1) % NB_COULEUR] = true;
-                    tmpUnaires[v2][c2] = true;
-                    break;
-                case 3:
-                    tmpUnaires[v1][(c1 + 2) % NB_COULEUR] = true;
-                    tmpUnaires[v2][c2] = true;
-                    break;
-            }
-
-            affichageContraintes();
+        switch (choix) {
+            case 0:
+                tmpUnaires[v1][c1] = true;
+                tmpUnaires[v2][(c2 + 1) % NB_COULEUR] = true;
+                break;
+            case 1:
+                tmpUnaires[v1][c1] = true;
+                tmpUnaires[v2][(c2 + 2) % NB_COULEUR] = true;
+                break;
+            case 2:
+                tmpUnaires[v1][(c1 + 1) % NB_COULEUR] = true;
+                tmpUnaires[v2][c2] = true;
+                break;
+            case 3:
+                tmpUnaires[v1][(c1 + 2) % NB_COULEUR] = true;
+                tmpUnaires[v2][c2] = true;
+                break;
         }
+
+        affichageContraintes();
+
     }
 
     /**
