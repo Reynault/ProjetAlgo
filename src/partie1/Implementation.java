@@ -123,6 +123,7 @@ public class Implementation {
     private int recupNbUnaire() {
         int nbUnaire = 0;
         boolean trouve = false;
+
         for(int i = 0; i < tmpVariables.size() && !trouve; i++) {
             for (int j = 0; j < NB_COULEUR; j++) {
                 if (tmpUnaires[tmpVariables.get(i)][j]) {
@@ -132,6 +133,7 @@ public class Implementation {
                 }
             }
         }
+
         return nbUnaire;
     }
 
@@ -159,6 +161,9 @@ public class Implementation {
                     // unaires
                     if (couleurs[j] && tmpBinaires[variableCourante][i][j][k]) {
                         tmpBinaires[variableCourante][i][j][k] = false;
+
+                        // Lors de la suppression d'une contrainte binaire, il faut tout de même
+                        // vérifier la présence de l'autre variable contenue dans l'ensemble
                         if (!variableExiste(i)) {
                             tmpVariables.remove((Integer) i);
                         }
@@ -309,7 +314,7 @@ public class Implementation {
 
         // Application de la modification
         int choix = new Random().nextInt(4);
-
+        // En fonction du choix aléatoire, ajout de deux nouvelles contraintes unaires
         switch (choix) {
             case 0:
                 tmpUnaires[v1][c1] = true;
@@ -330,6 +335,11 @@ public class Implementation {
         }
     }
 
+    /**
+     * Méthode qui permet de vérifier l'existence d'une variable
+     * @param variable la variable à vérifier
+     * @return
+     */
     private boolean variableExiste(int variable){
         boolean trouve = false;
         for(int i = 0; i < taille && !trouve; i++){
