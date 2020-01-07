@@ -70,38 +70,26 @@ public class Implementation {
     private boolean tentative() {
         boolean satisfait = true;
         int nbUnaire;
-        System.out.println("Nouvelle tentative");
         // Tant que le système n'a pas de contradiction et qu'il reste des variables à tester
         while(satisfait && tmpVariables.size() > 0){
-            System.out.println("Nouvelle etape");
-            affichageContraintes();
-            affichageVariables();
             // Récupération du nombre de contraintes unaires d'une première variable
             nbUnaire = recupNbUnaire();
-            System.out.println("Nombre de contraintes unaires: "+nbUnaire);
 
             // Il faut ensuite appliquer les règles en fonction du nombre de contraintes unaires
             switch (nbUnaire){
                 case 0:
-                    System.out.println("Quatrieme cas");
                     // Si aucunes variables ne possèdent de contraintes unaires, application du quatrième cas
                     quatriemeCas();
                     break;
                 case 1:
-                    System.out.println("Troisieme cas");
-                    System.out.println("Variable courante: "+variableCourante);
                     // Lorsqu'il y a une contrainte, application du troisième cas
                     troisiemeCas();
                     break;
                 case 2:
-                    System.out.println("Deuxieme cas");
-                    System.out.println("Variable courante: "+variableCourante);
                     // Lorsqu'il y a deux contraintes unaires, application du deuxième cas
                     deuxiemeCas();
                     break;
                 case 3:
-                    System.out.println("Contradiction");
-                    System.out.println("Variable courante: "+variableCourante);
                     // S'il y a trois contraintes unaires, cela signifie qu'il y a une contradiction
                     satisfait = false;
                     break;
@@ -284,7 +272,6 @@ public class Implementation {
 
         // Enfin, si il ne reste pas de contrainte binaire seule, il faut supprimer la variable courante qui n'a alors
         // plus de contraintes associées
-        System.out.println("indice: "+indice);
         if( (indice == listeC1.size()) && (indice == listeC2.size())){
             tmpVariables.remove((Integer) variableCourante);
         }
@@ -316,7 +303,6 @@ public class Implementation {
         // Application de la modification
         int choix = new Random().nextInt(4);
         // En fonction du choix aléatoire, ajout de deux nouvelles contraintes unaires
-        System.out.println("Choix effectué: "+choix);
         switch (choix) {
             case 0:
                 tmpUnaires[v1][c1] = true;

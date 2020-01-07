@@ -12,35 +12,37 @@ public class Main {
     /**
      * Main qui exécute le programme.
      *
-     * Il demande un chemin vers un fichier (qui se trouve dans le dossier contenant les graphes (doc/partie1/), donc le chemin
-     * est partiellement indiqué, il suffit juste de donner le nom du graphe à tester
+     * Il demande un chemin vers un fichier qui contient un graphe présentée par matrice d'adjacences.
      *
      * @param arguments Le nom du fichier à indiquer
      */
     public static void main(String[] arguments) {
         // Si aucuns arguments
         if (arguments.length != 1) {
-            System.out.println("Usage: java <Nom du programme> <nom du graphe qui se trouve dans le dossier doc/partie1/>");
-            System.out.println("exemple: java main graph1");
+            System.out.println("Usage: java <Nom du programme> <nom du fichier>");
+            System.out.println("exemple: java main ../partie1/graph1.txt");
         }else{
             try {
                 // Récupération du fichier
-                File fichier = new File("res/partie1/"+arguments[0]+".txt");
+                File fichier = new File(arguments[0]);
                 // Et lecture
                 BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
 
                 // Transformation du graphe vers l'ensemble des contraintes, puis application de l'algorithme
                 try {
+                    System.out.println("Lecture du fichier");
                     boolean[][][][] binaire = graphVersSSS(lecteur);
 
                     boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
                     Implementation impl = new Implementation(binaire, unaire);
+                    System.out.println("Résolution en cours");
                     boolean res = impl.resoudre();
 
+                    System.out.println("---");
                     if(res){
-                        System.out.println("GRAPHE COLORIABLE");
+                        System.out.println("Graphe coloriable");
                     }else{
-                        System.out.println("GRAPHE NON COLORIABLE");
+                        System.out.println("Graphe non coloriable");
                     }
                 }catch (Exception e){
                     System.out.println("Erreur lors de la lecture du fichier: "+e.getMessage());
