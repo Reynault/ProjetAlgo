@@ -25,7 +25,7 @@ public class Main {
         }else{
             try {
                 // Récupération du fichier
-                File fichier = new File("doc/partie1/"+arguments[0]+".txt");
+                File fichier = new File("res/partie1/"+arguments[0]+".txt");
                 // Et lecture
                 BufferedReader lecteur = new BufferedReader(new FileReader(fichier));
 
