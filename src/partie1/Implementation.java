@@ -70,7 +70,7 @@ public class Implementation {
     private boolean tentative() {
         boolean satisfait = true;
         int nbUnaire;
-
+        int test = 0;
         System.out.println("Nouvelle tentative");
         // Tant que le système n'a pas de contradiction et qu'il reste des variables à tester
         while(satisfait && tmpVariables.size() > 0){
@@ -85,8 +85,12 @@ public class Implementation {
             switch (nbUnaire){
                 case 0:
                     System.out.println("Quatrieme cas");
-                    // Si la variable ne possède pas de contraintes unaires, application du quatrième cas
+                    // Si aucunes variables ne possèdent de contraintes unaires, application du quatrième cas
                     quatriemeCas();
+                    test++;
+                    if (test > 4) {
+                        System.exit(0);
+                    }
                     break;
                 case 1:
                     System.out.println("Troisieme cas");
@@ -143,7 +147,7 @@ public class Implementation {
      */
     private void deuxiemeCas(){
         // Suppression des contraintes unaires et remplissage d'un tableau qui va nous servir
-        // lors de la suppression des contraintes binaires
+        // lors de la suppression des contraintes binaires, celui-ci va contenir les couleurs
         boolean[] couleurs = new boolean[NB_COULEUR];
 
         for (int i = 0; i < NB_COULEUR; i++) {
@@ -154,6 +158,7 @@ public class Implementation {
         }
 
         // Suppression des contraintes binaires
+        
         for (int i = 0; i < taille; i++) {
             for (int j = 0; j < NB_COULEUR; j++) {
                 for (int k = 0; k < NB_COULEUR; k++) {
@@ -163,7 +168,8 @@ public class Implementation {
                         tmpBinaires[variableCourante][i][j][k] = false;
 
                         // Lors de la suppression d'une contrainte binaire, il faut tout de même
-                        // vérifier la présence de l'autre variable contenue dans l'ensemble
+                        // vérifier la présence de l'autre variable contenue dans l'ensemble, si elle
+                        // ne l'est plus, cela signifie qu'il faut la supprimer dans la liste des variables
                         if (!variableExiste(i)) {
                             tmpVariables.remove((Integer) i);
                         }
@@ -315,6 +321,7 @@ public class Implementation {
         // Application de la modification
         int choix = new Random().nextInt(4);
         // En fonction du choix aléatoire, ajout de deux nouvelles contraintes unaires
+        System.out.println("Choix effectué: "+choix);
         switch (choix) {
             case 0:
                 tmpUnaires[v1][c1] = true;
@@ -361,7 +368,7 @@ public class Implementation {
      * L'algorithme proposé correspond à un algorithme Monte-Carlo qui lorsqu'il répond Vrai (Ici, cela signifie
      * que l'ensemble est satisfiable), s'arrête, mais recommence un certain nombre de fois lorsque la réponse est Faux.
      * <p>
-     * En effet, étant un algorithme probabiliste qui a une chance sur deux, qu'un ensemble C satisfiable devient
+     * En effet, étant un algorithme probabiliste qui a une chance sur deux, qu'un ensemble C satisfiable devienne
      * insatisfiable dans certains cas. (D'après la question n°9)  Nous ne sommes pas sûr si la réponse est correcte
      * dans le cas de la réponse Faux.
      * <p>
@@ -373,10 +380,10 @@ public class Implementation {
     public boolean resoudre() {
         // Initialisation du nombre de tentatives
         long nbTentative = 0;
-        long nbMax = Math.round(10 * Math.pow(2, ((double) binaires.length) / 15)) + 1;
+        long nbMax = Math.round(10 * Math.pow(2, ((double) binaires.length) / 10)) + 1;
         boolean satisfait = false;
 
-        // Boucle dans laquelle on réalise les tentative, et qui s'arrête, si on atteint le max, ou si
+        // Boucle dans laquelle on réalise les tentative qui s'arrête, si on atteint le max, ou si
         // on trouve que c'est satisfiable
         while (!satisfait && nbTentative < nbMax) {
             // Copie des deux tableaux
@@ -412,8 +419,10 @@ public class Implementation {
         return satisfait;
     }
 
+    // Méthodes de débogage
+
     /**
-     * Méthode de debogage, affichage de l'ensemble des contraintes
+     * Méthode de debogage, affichage de l'ensemble des contraintes (binaires puis unaires)
      */
     private void affichageContraintes(){
         System.out.println("AffichageContraintes");

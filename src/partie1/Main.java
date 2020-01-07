@@ -83,7 +83,7 @@ public class Main {
             }
 
             // Pour tous les caractères d'une ligne (en partant du compteur puisqu'on ne prend que la moitié de la matrice)
-            for(int i = 0; i < taille; i++){
+            for(int i = compteur; i < taille; i++){
                 caractereCourant = ligne.charAt(i);
 
                 // S'il y a un 1, alors il y a une arête entre les deux sommets
