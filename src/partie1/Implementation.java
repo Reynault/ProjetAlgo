@@ -70,7 +70,6 @@ public class Implementation {
     private boolean tentative() {
         boolean satisfait = true;
         int nbUnaire;
-        int test = 0;
         System.out.println("Nouvelle tentative");
         // Tant que le système n'a pas de contradiction et qu'il reste des variables à tester
         while(satisfait && tmpVariables.size() > 0){
@@ -87,10 +86,6 @@ public class Implementation {
                     System.out.println("Quatrieme cas");
                     // Si aucunes variables ne possèdent de contraintes unaires, application du quatrième cas
                     quatriemeCas();
-                    test++;
-                    if (test > 4) {
-                        System.exit(0);
-                    }
                     break;
                 case 1:
                     System.out.println("Troisieme cas");
