@@ -35,7 +35,7 @@ public class Main {
 
                     boolean[][] unaire = new boolean[binaire.length][Implementation.NB_COULEUR];
                     Implementation impl = new Implementation(binaire, unaire);
-                    System.out.println("Résolution en cours");
+                    System.out.println("Resolution en cours");
                     boolean res = impl.resoudre();
 
                     System.out.println("---");
@@ -51,7 +51,7 @@ public class Main {
 
                 lecteur.close();
             }catch (Exception e){
-                System.out.println("Erreur lors de la récupération du fichier: "+e.getMessage());
+                System.out.println("Erreur lors de la recuperation du fichier: "+e.getMessage());
             }
         }
     }
