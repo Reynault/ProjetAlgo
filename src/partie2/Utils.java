@@ -10,10 +10,10 @@ import java.util.Random;
 
 public class Utils {
 
-    public int firstPacking(List<Object> objList, int boxHeight){
+    public int firstPacking(List<Node> objList, int boxHeight){
         int res = 0;
         int box = 1;
-        for (Object obj: objList) {
+        for (Node obj: objList) {
             if(res + obj.getHeight()<= boxHeight)
                 res += obj.getHeight();
             else
@@ -23,16 +23,16 @@ public class Utils {
         return box;
     }
 
-    public int firstPackingOtherImplementation(List<Object> objList, int boxHeight){
+    public int firstPackingOtherImplementation(List<Node> objList, int boxHeight){
         int totalHeight = 0;
-        for(Object o :objList){
+        for(Node o :objList){
             totalHeight += o.getHeight();
         }
         return (int)Math.ceil((double)totalHeight / (double)boxHeight);
     }
 
 
-    public List<Box> firstFitDecreasingPacking(List<Object> objListSort, int boxHeight)throws ObjectTooFat {
+    public List<Box> firstFitDecreasingPacking(List<Node> objListSort, int boxHeight)throws ObjectTooFat {
         List<Box> boxList = new ArrayList<>();
 
         try{
@@ -45,7 +45,7 @@ public class Utils {
             int currentObject = 1;
 
             //Parcours des objets
-            for (Object o : objListSort) {
+            for (Node o : objListSort) {
                 if(o.getHeight() > boxHeight)
                     throw new ObjectTooFat();
 
@@ -75,7 +75,7 @@ public class Utils {
         return boxList;
     }
 
-    public List<Box> bestFitDecreasingPacking(List<Object> objListSort, int boxHeight)throws ObjectTooFat{
+    public List<Box> bestFitDecreasingPacking(List<Node> objListSort, int boxHeight)throws ObjectTooFat{
         List<Box> boxList = new ArrayList<>();
 
         try{
@@ -88,7 +88,7 @@ public class Utils {
             int currentObject = 0;
 
             //Parcours des objets
-            for (Object o : objListSort) {
+            for (Node o : objListSort) {
                 if(o.getHeight() > boxHeight)
                     throw new ObjectTooFat();
 
@@ -121,9 +121,9 @@ public class Utils {
         return boxList;
     }
 
-    public List<Object> readFile(String path) throws IOException {
+    public List<Node> readFile(String path) throws IOException {
 
-        List<Object> objectList = new ArrayList<>();
+        List<Node> nodeList = new ArrayList<>();
 
         File file = new File(path);
         BufferedReader br = new BufferedReader(new FileReader(file));
@@ -137,7 +137,7 @@ public class Utils {
                 for(int i = 0; i < Integer.parseInt(lineSplit[2]); i++){
                     Random r = new Random();
                     int random =  r.nextInt((50 - 10) + 1) + 10;
-                    objectList.add(new Object(random, new ArrayList<>()));
+                    nodeList.add(new Node(random, new ArrayList<>()));
                 }
             }
 
@@ -145,112 +145,170 @@ public class Utils {
             if(lineSplit[0].equals("e")) {
                 int edge1 = Integer.parseInt(lineSplit[1]);
                 int edge2 = Integer.parseInt(lineSplit[2]);
-                objectList.get(edge1-1).addNeighbour(objectList.get(edge2-1));
-                objectList.get(edge2-1).addNeighbour(objectList.get(edge1-1));
+                nodeList.get(edge1-1).addNeighbour(nodeList.get(edge2-1));
+                nodeList.get(edge2-1).addNeighbour(nodeList.get(edge1-1));
                 nbEdge++;
             }
         }
         System.out.println("NOMBRE EDGE : "+nbEdge);
         System.out.println("------------------- INITIALISTAION DU GRAPHE TERMINE ----------------");
-        return objectList;
+
+        for(Node obj: nodeList){
+            System.out.println("NODE NEIGHBOUR : " + obj.getNeighbourList().size());
+        }
+
+        return nodeList;
     }
 
 
 
-    public List<Object> dSatur(List<Object> objectList){
-        List<Object> objectColored = new ArrayList<>();
-        List<Object> otherObjecList = objectList;
+    public List<Node> dSatur(List<Node> nodeList){
 
-        System.out.println("SIZE OF ORIGINAL LIST : "+ objectList);
-        System.out.println("SIZE OF OTHER LIST : "+ otherObjecList);
-        System.out.println("SIZE OF COLORED LIST : "+ objectColored);
+        List<Node> nodeColored = new ArrayList<>();
+        System.out.println("SIZE OF ORIGINAL LIST : "+ nodeList);
+        System.out.println("SIZE OF COLORED LIST : "+ nodeColored);
 
-        Object maxDegreeObject =null;
-        System.out.println("SIZE OF Neighbour node 2: "+  objectList.get(2).getNeighbourList().size());
+        Node maxDegreeNode =null;
+//        System.out.println("SIZE OF Neighbour node 2: "+  nodeList.get(2).getNeighbourList().size());
 
         //Identification du sommet avec le degré max
-        for (Object obj : otherObjecList) {
-            if (maxDegreeObject == null || maxDegreeObject.getNeighbourList().size() < obj.getNeighbourList().size()) {
-                System.out.println("SATURATION OF "+ obj + " : "+ obj.getNeighbourList().size());
-                maxDegreeObject = obj;
+        for (Node obj : nodeList) {
+            if (maxDegreeNode == null || maxDegreeNode.getNeighbourList().size() < obj.getNeighbourList().size()) {
+//                System.out.println("SATURATION OF "+ obj + " : "+ obj.getNeighbourList().size());
+                maxDegreeNode = obj;
             }
         }
-        if (maxDegreeObject != null) {
-            maxDegreeObject.setColor(1);
-            objectColored.add(maxDegreeObject);
-            otherObjecList.remove(maxDegreeObject);
+        if (maxDegreeNode != null) {
+            maxDegreeNode.setColor(1);
+            nodeColored.add(maxDegreeNode);
+            nodeList.remove(maxDegreeNode);
         }else
             System.out.println("Aucun objet trouvé");
 
-
-
-        while(objectList.size()!=0) {
-
-            System.out.println("ORIGINAL LIST : "+ objectList);
-            System.out.println("SIZE OF COLORED LIST : "+ objectColored);
-
-            Object maxSaturateObject = null;
+        while(nodeList.size()>0) {
+            Node maxSaturateNode = nodeList.get(0);
             //Choix d'un sommet avec le degrée de saturation max
 
-            for (Object obj : otherObjecList) {
-                System.out.println("NUMBER OF NEIGHBOUR OF "+ obj + " : "+ obj.getNeighbourList().size());
+            for (Node obj : nodeList) {
+                System.out.println("NUMBER OF COLORED NEIGHBOUR : "+ obj.getNumberOfColoredNeighbour());
+                if(maxSaturateNode != null)
+                    System.out.println("NUMBER OF COLORED NEIGHBOUR : "+ maxSaturateNode.getNumberOfColoredNeighbour());
 
-                System.out.println("SATURATION OF "+ obj + " : "+ obj.getNumberOfColoredNeighbour());
-                if (maxSaturateObject == null || maxSaturateObject.getNumberOfColoredNeighbour() < obj.getNumberOfColoredNeighbour()) {
-                    maxSaturateObject = obj;
-                } else if (maxSaturateObject.getNumberOfColoredNeighbour() == obj.getNumberOfColoredNeighbour()) {
-                    if (obj.getNeighbourList().size() > maxSaturateObject.getNeighbourList().size()) {
-                        maxSaturateObject = obj;
+                if (maxSaturateNode.getNumberOfColoredNeighbour() < obj.getNumberOfColoredNeighbour()) {
+                    maxSaturateNode = obj;
+                }
+
+                if (maxSaturateNode.getNumberOfColoredNeighbour() == obj.getNumberOfColoredNeighbour()) {
+                    if (obj.getNeighbourList().size() >= maxSaturateNode.getNeighbourList().size()) {
+                        maxSaturateNode = obj;
                     }
                 }
             }
-
-            System.out.println("         OBJ : " + maxSaturateObject);
-//            System.out.println("         OBJ NUMBER OF COLORED NEIGHBOUR : " + maxSaturateObject.getNumberOfColoredNeighbour());
-//
-//            System.out.println("         LEFT IN ORIGINAL LIST : " + otherObjecList.size());
 
             List<Integer> colorAlreadyAssign = new ArrayList<>();                                           //List des couleur déjà associé aux voisin de l'objet en cours
 
-            if (maxSaturateObject != null) {
-
-                for (Object obj : maxSaturateObject.getNeighbourList()) {
-                    if(obj.getColor()!=0)
-                        colorAlreadyAssign.add(obj.getColor());
-                }
-
-                Collections.sort(colorAlreadyAssign);                                                           //Tris des entier dans l'ordre croissant
-                System.out.println("                COLOR LIST SIZE :"+colorAlreadyAssign.size());
-                System.out.println("                COLOR LIST :"+colorAlreadyAssign);
-
-                boolean colorFound = false;                                                                     //Boolean permettantde vérifier si une couleur a été trouvé (qui n'est donc pas dans les voisins)
-                int i = 1;
-                while(!colorFound) {                                                             //On indent un entier qui défini la couleur tant qu'on a pas trouvé une couleur qui n'est pas dans un voisin
-                    System.out.println(i);
-                    if (!colorAlreadyAssign.contains(i)) {                                                      //Si la couleur n'est pas dans un voisin
-                        colorFound = true;                                                                      //On marque que la couleur est trouvé
-                        maxSaturateObject.setColor(i);                                                          //On met cette couleur à l'objet courant
-                        otherObjecList.remove(maxSaturateObject);
-                        objectColored.add(maxSaturateObject);
-                    }
-                    i++;
-                }
-            }else{
-                System.out.println("MaxSaturationObject null!-----------------------------------------------------");
+            for (Node obj : maxSaturateNode.getNeighbourList()) {
+                    colorAlreadyAssign.add(obj.getColor());
             }
 
+            System.out.println("COLOR OF NEIGHBOUR FOR NODE "+ maxSaturateNode + "    : "+ colorAlreadyAssign);
+
+//            Collections.sort(colorAlreadyAssign);                                                           //Tris des entier dans l'ordre croissant
+
+            boolean colorFound = false;                                                                     //Boolean permettantde vérifier si une couleur a été trouvé (qui n'est donc pas dans les voisins)
+            int i = 1;
+            while(!colorFound) {                                                                            //On indent un entier qui défini la couleur tant qu'on a pas trouvé une couleur qui n'est pas dans un voisin
+                System.out.println("i tested : "+ i);
+                if (!colorAlreadyAssign.contains(i)) {                                                      //Si la couleur n'est pas dans un voisin
+                    colorFound = true;                                                                      //On marque que la couleur est trouvé
+                    maxSaturateNode.setColor(i);                                                          //On met cette couleur à l'objet courant
+                    nodeColored.add(maxSaturateNode);
+                    nodeList.remove(maxSaturateNode);
+                }else {
+                    i++;
+                }
+            }
+            System.out.println("\n\n----------------CHANGE OF NODE----------------\n\n");
+
+//
+//            System.out.println("         OBJ : " + maxSaturateNode);
+//            System.out.println("         OBJ NUMBER OF COLORED NEIGHBOUR : " + maxSaturateNode.getNeighbourList());
+//            System.out.println("         OBJ COLORED : " + maxSaturateNode.getColor());
+//
+//            System.out.println("         OBJ TO COMPARE : " + maxSaturateNode.getNeighbourList().get(3));
+//            System.out.println("         OBJ COLOR TO COMPARE : " + maxSaturateNode.getNeighbourList().get(3).getColor());
+//            System.out.println("         OBJ NUMBER OF COLORED NEIGHBOUR : " + maxSaturateNode.getNeighbourList().get(3).getNeighbourList().contains(maxDegreeNode));
+//            System.out.println();
         }
-        return objectColored;
+
+        boolean faux = false;
+        for(Node o: nodeColored){
+            int color = o.getColor();
+            System.out.println("Color to test : "+ color);
+            for(Node o2: o.getNeighbourList()){
+                if(o2.getColor() == color){
+                    faux = true;
+                }
+            }
+        }
+        System.out.println("La vérif trouve un conflit dans les voisins ? " + faux);
+        return nodeColored;
     }
 
-    public int findNumberOfColor(List<Object> objectList){
+    public int findNumberOfColor(List<Node> nodeList){
         List<Integer> color = new ArrayList<>();
-        for (Object obj : objectList){
+        for (Node obj : nodeList){
             if(!color.contains(obj.getColor())){
                 color.add(obj.getColor());
             }
         }
+        System.out.println("COLOR LIST : "+color);
         return color.size();
     }
+
+
+    public List<Box> dSaturWithFFDPacking(List<Node> objListSort, int boxHeight)throws ObjectTooFat {
+        List<Box> boxList = new ArrayList<>();
+
+        try{
+            //Si il n'y a pas d'objet on retourne une liste vide
+            if(objListSort.size()==0){
+                return new ArrayList<>();
+            }else {//On crée une boite si il y a des objets
+                boxList.add(new Box(boxHeight));
+            }
+            int currentObject = 1;
+
+            //Parcours des objets
+            for (Node o : objListSort) {
+                if(o.getHeight() > boxHeight)
+                    throw new ObjectTooFat();
+
+                boolean boxFound = false;
+
+                for(Box b : boxList){
+                    if(!b.isInConflictWithColor(o)) {                                                    //On test si l'objet est en conflit
+                        if (o.getHeight() <= b.getHeightLeft()) {                               //Si la taille de l'objet est inférieur au restant de place de la boite
+                            b.addObjetToBox(currentObject, o);                                  //On ajoute
+                            boxFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(!boxFound){
+                    Box newBox = new Box(boxHeight);                 //On crée une nouvelle boite
+                    newBox.addObjetToBox(currentObject, o);                             //On ajoute l'objet à la nouvelle boite
+                    boxList.add(newBox);                                                //On ajoute une nouvelle boite
+                }
+                currentObject++;
+
+            }
+        }catch(ObjectTooFat e){
+            System.out.println("An object is too fat for the basic height of a box");
+        }
+        return boxList;
+    }
+
 
 }

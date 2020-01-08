@@ -6,15 +6,17 @@ import java.util.List;
 public class Box {
 
     int boxHeight;
-    List<Tuple> objectList;
-    List<Object> objectConflict;
+    List<Node> nodeList;
+    List<Tuple> objectListTuple;
+    List<Node> nodeConflict;
     int heightLeft;
 
     public Box(int boxHeight){
         this.boxHeight = boxHeight;
-        this.objectList = new ArrayList<>();
+        this.nodeList = new ArrayList<>();
+        this.objectListTuple = new ArrayList<>();
         this.heightLeft = boxHeight;
-        objectConflict = new ArrayList<>();
+        nodeConflict = new ArrayList<>();
     }
 
     public int getHeightLeft() {
@@ -27,26 +29,41 @@ public class Box {
      * On ajoute les objets qui sotnt en conflit avec le dernier objet inséré
      * On met à jour la place restante
      * @param index
-     * @param object
+     * @param node
      */
-    public void addObjetToBox(int index, Object object){
-        this.objectList.add(new Tuple(index, object.getHeight()));
-        this.heightLeft = this.heightLeft - object.getHeight();
-        this.objectConflict.addAll(object.getNeighbourList());
+    public void addObjetToBox(int index, Node node){
+        this.objectListTuple.add(new Tuple(index, node.getHeight()));
+        this.nodeList.add(node);
+        this.heightLeft = this.heightLeft - node.getHeight();
+        for(Node obj : node.getNeighbourList()){
+            if(!this.nodeConflict.contains(obj))
+                this.nodeConflict.add(obj);
+        }
     }
 
-    public boolean isInConflict(Object o) {
-//        System.out.println("ObjectConflict : " + objectConflict);
-        return objectConflict.contains(o);
+    public boolean isInConflict(Node o) {
+//        System.out.println("ObjectConflict : " + nodeConflict);
+        return nodeConflict.contains(o);
+    }
+
+    public boolean isInConflictWithColor(Node o) {
+        boolean res =  nodeConflict.contains(o);
+        for (Node obj: nodeList) {
+            if (obj.getColor() == o.getColor()) {
+                res = true;
+                break;
+            }
+        }
+        return res;
     }
 
     public String display() {
         int i = 0;
         String res = "(" + (boxHeight - heightLeft) + "[";
 
-        for(Tuple t: objectList){
+        for(Tuple t: objectListTuple){
             res += t.display();
-            if(i != objectList.size()-1){
+            if(i != objectListTuple.size()-1){
                 res += ",";
             }
             i++;
@@ -54,4 +71,6 @@ public class Box {
         res += "])";
         return res;
     }
+
+
 }

@@ -1,16 +1,17 @@
 package partie2;
 
+import java.util.Comparator;
 import java.util.List;
 
-public class Object implements Comparable{
+public class Node implements Comparable<Node>{
 
     private int height;
 
-    private List<Object> neighbourList;
+    private List<Node> neighbourList;
 
     private int color = 0;
 
-    public Object(int height, List<Object> neighbourList){
+    public Node(int height, List<Node> neighbourList){
         this.height = height;
         this.neighbourList = neighbourList;
     }
@@ -26,16 +27,16 @@ public class Object implements Comparable{
      * @param o Objet à tester
      * @return true si o est dans neighbourList, false sinon
      */
-    public boolean isANeighbour(Object o){
+    public boolean isANeighbour(Node o){
         return  neighbourList.contains(o);
     }
 
 
-    public List<Object> getNeighbourList(){
+    public List<Node> getNeighbourList(){
         return neighbourList;
     }
 
-    public void addNeighbour(Object neighbour){
+    public void addNeighbour(Node neighbour){
         neighbourList.add(neighbour);
     }
 
@@ -47,20 +48,13 @@ public class Object implements Comparable{
         this.color = color;
     }
 
-    @Override
-    public int compareTo(java.lang.Object o) {
-        Object object = (Object)o;
-        int compareHeight = object.getHeight();
-        return compareHeight-this.height;
-    }
-
     /**
      * Methode qui retourne le nombre de voisins colorées
      * @return
      */
     public int getNumberOfColoredNeighbour() {
         int res=0;
-        for(Object obj : neighbourList){
+        for(Node obj : neighbourList){
             if(obj.getColor()!= 0){
                 res ++;
             }
@@ -68,6 +62,14 @@ public class Object implements Comparable{
         return res;
     }
 
+
+    /*
+     **  Implement the natural order for this class
+     */
+    public int compareTo(Node p)
+    {
+        return Integer.compare(getHeight(), p.getHeight());
+    }
 
 
 }
