@@ -22,6 +22,7 @@ public class Implementation {
     private final List<Integer> variables;
     private final int taille;
 
+    
     // Variables temporaires modifiées lors de l'execution de l'algorithme
     private boolean[][][][] tmpBinaires;
     private boolean[][] tmpUnaires;
