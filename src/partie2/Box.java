@@ -47,7 +47,7 @@ public class Box {
     }
 
     public boolean isInConflictWithColor(Node o) {
-        boolean res =  nodeConflict.contains(o);
+        boolean res =  false;
         for (Node obj: nodeList) {
             if (obj.getColor() == o.getColor()) {
                 res = true;
